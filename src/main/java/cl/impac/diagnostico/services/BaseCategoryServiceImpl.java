@@ -6,7 +6,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import cl.impac.diagnostico.models.entities.BaseCatergory;
+import cl.impac.diagnostico.models.entities.BaseCategory;
 import cl.impac.diagnostico.models.repositories.BaseCategoryRepository;
 
 @Service
@@ -14,14 +14,14 @@ public class BaseCategoryServiceImpl implements IBaseCategoryService {
 	
 	@Autowired
 	private BaseCategoryRepository baseCategoryRepository;
+	
 	@Override
-	public List<BaseCatergory> getAllBaseCategories() {		
+	public List<BaseCategory> getAllBaseCategories() {		
 		return baseCategoryRepository.findAll();
 	}
 
 	@Override
-	public Optional<BaseCatergory> getBaseCategoryById(Long id) {
-		// TODO Auto-generated method stub
+	public Optional<BaseCategory> getBaseCategoryById(Long id) {		
 		return Optional.empty();
 	}
 

@@ -15,7 +15,7 @@ import lombok.Setter;
 @Getter
 @Entity
 @Table(name = "base_category", uniqueConstraints = @UniqueConstraint(columnNames = "name"))
-public class BaseCatergory {
+public class BaseCategory {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

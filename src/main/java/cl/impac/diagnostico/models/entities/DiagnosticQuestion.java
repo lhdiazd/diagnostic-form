@@ -1,5 +1,7 @@
 package cl.impac.diagnostico.models.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -22,6 +24,7 @@ public class DiagnosticQuestion {
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)	
 	private Long id;
+	@JsonBackReference
 	@NotNull	
 	@ManyToOne
 	@JoinColumn(name = "equipment_form_id", nullable = false)
@@ -30,3 +33,4 @@ public class DiagnosticQuestion {
 	@Column(nullable = false)
 	private String detalle;
 }
+ 

@@ -2,6 +2,8 @@ package cl.impac.diagnostico.models.entities;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -23,7 +25,7 @@ import lombok.Setter;
 @Setter
 @Getter
 @Entity
-@Table(name = "equipment_form", uniqueConstraints = @UniqueConstraint(columnNames = "base_category_id"))
+@Table(name = "equipment_form"/*, uniqueConstraints = @UniqueConstraint(columnNames = "base_category_id")*/)
 public class EquipmentForm {
 	
 	@Id
@@ -32,11 +34,10 @@ public class EquipmentForm {
 	@NotNull	
 	@ManyToOne(optional = false, cascade = CascadeType.ALL)
 	@JoinColumn(name = "base_category_id", nullable= false)
-	private BaseCatergory baseCategory;
+	private BaseCategory baseCategory;
 	@NotBlank
 	private String name;
-	@Column(nullable = false)
-	@NotNull
+	@JsonManagedReference	
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "equipmentForm")
 	private List<DiagnosticQuestion> diagnosticQuestion;
 }
