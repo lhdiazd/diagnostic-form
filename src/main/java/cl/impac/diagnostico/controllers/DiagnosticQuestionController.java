@@ -18,24 +18,8 @@ import cl.impac.diagnostico.services.IDiagnosticQuestionService;
 
 @RestController
 @RequestMapping("/preguntas")
-public class DiagnosticQuestionController {
-	
-	@Autowired
-	private IDiagnosticQuestionService iDiagnosticQuestionService;
-	
-	@GetMapping(value = "/lista", produces = MediaType.APPLICATION_JSON_VALUE)
-	public List<DiagnosticQuestion> getDiagnosticQuestions(){
-		return iDiagnosticQuestionService.getAllDiagnosticQuestions();
-	}
-	
-	@GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE )
-	public ResponseEntity<?> getDiagnosticQuestionById(@PathVariable Long id) {
-	    Optional<DiagnosticQuestion> optionalDiagnosticQuestion = iDiagnosticQuestionService.getDiagnosticQuestionById(id);
-	    return optionalDiagnosticQuestion.isPresent() ?
-	            ResponseEntity.ok(optionalDiagnosticQuestion.get()) :
-	            ResponseEntity.status(HttpStatus.NOT_FOUND)
-	                .body("Pregunta no encontrada");
-	}
+public class DiagnosticQuestionController {	
+
 	
 	
 	

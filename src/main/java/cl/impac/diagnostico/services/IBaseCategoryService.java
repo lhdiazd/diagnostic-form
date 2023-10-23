@@ -3,6 +3,7 @@ package cl.impac.diagnostico.services;
 import java.util.List;
 import java.util.Optional;
 
+import cl.impac.diagnostico.dto.BaseCategoryDTO;
 import cl.impac.diagnostico.models.entities.BaseCategory;
 
 public interface IBaseCategoryService {

@@ -6,9 +6,9 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-
-import cl.impac.diagnostico.dto.EquipmentFormDTO;
+import cl.impac.diagnostico.models.entities.BaseCategory;
 import cl.impac.diagnostico.models.entities.EquipmentForm;
 import cl.impac.diagnostico.models.repositories.EquipmentFormRepository;
 
@@ -19,32 +19,46 @@ public class EquipmentFormServiceImpl implements IEquipmentFormService {
 	private EquipmentFormRepository equipmentFormRepository;
 
 	@Override
-	public List<EquipmentFormDTO> getAllEquipmentForms() {
-		List<EquipmentForm> equipmentForms = equipmentFormRepository.findAll();
-
-		return equipmentForms.stream().map(equipmentForm -> new EquipmentFormDTO(equipmentForm.getId(),
-				equipmentForm.getBaseCategory(), equipmentForm.getName(), equipmentForm.getDiagnosticQuestion()))
-				.collect(Collectors.toList());
+	public List<EquipmentForm> getAllEquipmentForms() {
+		return equipmentFormRepository.findAll();
 	}
 
 	@Override
-	public Optional<EquipmentFormDTO> getEquipmentFormById(Long id) {
-		Optional<EquipmentForm> optionalEquipmentForm = equipmentFormRepository.findById(id);
-		return optionalEquipmentForm.map(equipmentForm -> new EquipmentFormDTO(equipmentForm.getId(),
-				equipmentForm.getBaseCategory(), equipmentForm.getName(), equipmentForm.getDiagnosticQuestion()));
+	public Optional<EquipmentForm> getEquipmentFormById(Long id) {
+		return equipmentFormRepository.findById(id);
 	}
 
 	@Override
-	public void createEquipmentForm(EquipmentFormDTO equipmentFormDTO) {
+	public boolean createEquipmentForm(String name, BaseCategory baseCategory) {
+		if (baseCategory == null) {
+			return false;
+		}
 		EquipmentForm equipmentForm = new EquipmentForm();
-        equipmentForm.setBaseCategory(equipmentFormDTO.getBaseCategoryDTO());
-        equipmentForm.setName(equipmentFormDTO.getName());
-        equipmentFormRepository.save(equipmentForm);
+		equipmentForm.setBaseCategory(baseCategory);
+		equipmentForm.setName(name);
+		try {
+			equipmentFormRepository.save(equipmentForm);
+			return true;
+
+		} catch (DataIntegrityViolationException e) {
+			return false;
+		}
+
 	}
 
 	@Override
-	public void deleteEquipmentFormById(Long id) {
-		// TODO Auto-generated method stub
+	public boolean deleteEquipmentFormById(Long id) {
+		Optional<EquipmentForm> optionalEquipmentForm = equipmentFormRepository.findById(id);
+		if (optionalEquipmentForm.isPresent()) {
+			return false;			
+		}
+		try {
+			equipmentFormRepository.delete(optionalEquipmentForm.get());
+			return true;
+		} catch (DataIntegrityViolationException e) {
+			return false;
+		}
+		
 
 	}
 
