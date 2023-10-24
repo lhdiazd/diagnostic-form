@@ -9,6 +9,6 @@ import cl.impac.diagnostico.models.entities.EquipmentForm;
 public interface IDiagnosticQuestionService {
 	public List<DiagnosticQuestion> getAllDiagnosticQuestions();
 	public Optional<DiagnosticQuestion> getDiagnosticQuestionById(Long id);	
-	public boolean saveDiagnosticQuestion(EquipmentForm equipmentForm, String detalle);
+	public DiagnosticQuestion saveDiagnosticQuestion(Long diagnosticQuestionId, EquipmentForm equipmentForm, String detalle);
 	public void deleteDiagnosticQuestionById(Long id);
 }

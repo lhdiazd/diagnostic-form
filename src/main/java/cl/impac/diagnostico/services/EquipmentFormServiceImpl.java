@@ -1,10 +1,7 @@
 package cl.impac.diagnostico.services;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -29,36 +26,37 @@ public class EquipmentFormServiceImpl implements IEquipmentFormService {
 	}
 
 	@Override
-	public boolean createEquipmentForm(String name, BaseCategory baseCategory) {
-		if (baseCategory == null) {
-			return false;
-		}
-		EquipmentForm equipmentForm = new EquipmentForm();
+	public EquipmentForm saveOrUpdateEquipmentForm(Long equipmentFormId, String name, BaseCategory baseCategory) {
+		EquipmentForm equipmentForm = (equipmentFormId != null)
+				? equipmentFormRepository.findById(equipmentFormId).orElse(new EquipmentForm())
+				: new EquipmentForm();
+		
 		equipmentForm.setBaseCategory(baseCategory);
 		equipmentForm.setName(name);
-		try {
-			equipmentFormRepository.save(equipmentForm);
-			return true;
 
-		} catch (DataIntegrityViolationException e) {
-			return false;
+		try {			
+			return equipmentFormRepository.save(equipmentForm);
+			
+		} catch (DataIntegrityViolationException e) {			
+			return null;
+			
 		}
-
 	}
 
 	@Override
-	public boolean deleteEquipmentFormById(Long id) {
-		Optional<EquipmentForm> optionalEquipmentForm = equipmentFormRepository.findById(id);
-		if (optionalEquipmentForm.isPresent()) {
-			return false;			
+	public boolean deleteEquipmentFormById(Long equipmentFormId) {
+		if (equipmentFormId != null) {
+			Optional<EquipmentForm> optionalEquipmentForm = equipmentFormRepository.findById(equipmentFormId);
+			if (optionalEquipmentForm.isPresent()) {
+				try {
+					equipmentFormRepository.delete(optionalEquipmentForm.get());
+					return true;
+				} catch (DataIntegrityViolationException e) {
+					return false;
+				}
+			}
 		}
-		try {
-			equipmentFormRepository.delete(optionalEquipmentForm.get());
-			return true;
-		} catch (DataIntegrityViolationException e) {
-			return false;
-		}
-		
+		return false;
 
 	}
 

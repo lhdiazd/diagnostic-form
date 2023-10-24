@@ -2,8 +2,8 @@ package cl.impac.diagnostico.services;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import cl.impac.diagnostico.models.entities.DiagnosticQuestion;
 import cl.impac.diagnostico.models.entities.EquipmentForm;
@@ -26,22 +26,30 @@ public class DiagnosticQuestionServiceImpl implements IDiagnosticQuestionService
 	}
 
 	@Override
-	public boolean saveDiagnosticQuestion(EquipmentForm equipmentForm, String detalle) {
+	public DiagnosticQuestion saveDiagnosticQuestion(Long diagnosticQuestionId, EquipmentForm equipmentForm, String detalle) {
+		DiagnosticQuestion diagnosticQuestion = (diagnosticQuestionId != null)
+				? diagnosticQuestionRepository.findById(diagnosticQuestionId).orElse(new DiagnosticQuestion())
+				: new DiagnosticQuestion();
+
+		diagnosticQuestion.setEquipmentForm(equipmentForm);
+		diagnosticQuestion.setDetalle(detalle);
+
 		try {
-	        DiagnosticQuestion diagnosticQuestion = new DiagnosticQuestion();
-	        diagnosticQuestion.setEquipmentForm(equipmentForm);
-	        diagnosticQuestion.setDetalle(detalle);
-	        diagnosticQuestionRepository.save(diagnosticQuestion);
-	        return true;
-	    } catch (Exception e) {
-	        return false;
-	    }		
+			return diagnosticQuestionRepository.save(diagnosticQuestion);
+		} catch (DataIntegrityViolationException e) {
+			return null;
+		}		
 	}
+	
+	
+
+	
 
 	@Override
-	public void deleteDiagnosticQuestionById(Long id) {
-		// TODO Auto-generated method stub
-
+	public void deleteDiagnosticQuestionById(Long diagnosticQuestionId) {
+		if (diagnosticQuestionId != null) {
+	        diagnosticQuestionRepository.deleteById(diagnosticQuestionId);
+	    }
 	}
 
 }
