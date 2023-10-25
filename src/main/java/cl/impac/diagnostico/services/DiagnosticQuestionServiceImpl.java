@@ -35,7 +35,13 @@ public class DiagnosticQuestionServiceImpl implements IDiagnosticQuestionService
 		diagnosticQuestion.setDetalle(detalle);
 
 		try {
-			return diagnosticQuestionRepository.save(diagnosticQuestion);
+			
+			if(detalle != null && !detalle.isBlank()) {
+				return diagnosticQuestionRepository.save(diagnosticQuestion);
+			} else {
+				return null;
+			}
+			
 		} catch (DataIntegrityViolationException e) {
 			return null;
 		}		
