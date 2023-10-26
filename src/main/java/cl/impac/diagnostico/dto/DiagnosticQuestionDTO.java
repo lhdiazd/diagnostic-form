@@ -6,7 +6,6 @@ import lombok.Setter;
 @Setter
 @Getter
 public class DiagnosticQuestionDTO {
-	private Long id;
-	private Long equipmentFormId;
+	private Long id;	
 	private String detalle;
 }

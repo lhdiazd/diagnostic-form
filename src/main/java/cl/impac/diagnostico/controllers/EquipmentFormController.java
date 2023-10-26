@@ -1,7 +1,9 @@
 package cl.impac.diagnostico.controllers;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -16,7 +18,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
+
 import cl.impac.diagnostico.dto.DiagnosticQuestionDTO;
+import cl.impac.diagnostico.dto.EquipmentFormDTO;
 import cl.impac.diagnostico.models.entities.BaseCategory;
 import cl.impac.diagnostico.models.entities.EquipmentForm;
 import cl.impac.diagnostico.services.IBaseCategoryService;
@@ -54,48 +59,33 @@ public class EquipmentFormController {
 				: ResponseEntity.status(HttpStatus.NOT_FOUND).body("Formulario no encontrado");
 	}
 
-	@PostMapping(value = "/crear-actualizar",  consumes = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> createOrUpdateEquipmentForm(@RequestParam(required = false) Long equipmentFormId,
-			@RequestParam(required = false) String name, @RequestParam(required = false) Long baseCategoryId,
-			@RequestBody(required = false) List<DiagnosticQuestionDTO> questionsDTO) {
-
+	@PostMapping(value = "/crear-actualizar", consumes = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> createOrUpdateEquipmentForm(@RequestBody EquipmentFormDTO formData) {
 		try {
+			BaseCategory baseCategory = iBaseCategoryService.getBaseCategoryById(formData.getBaseCategoryId())
+					.orElseThrow(
+							() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "La categoría base no existe."));
 
-			Optional<BaseCategory> optionalBaseCategory = iBaseCategoryService.getBaseCategoryById(baseCategoryId);
+			EquipmentForm savedEquipmentForm = iEquipmentFormService
+					.saveOrUpdateEquipmentForm(formData.getEquipmentFormId(), formData.getName(), baseCategory);
 
-			if (optionalBaseCategory.isPresent()) {
+			formData.getQuestionsDTO().forEach(questionDTO -> iDiagnosticQuestionService
+					.saveDiagnosticQuestion(questionDTO.getId(), savedEquipmentForm, questionDTO.getDetalle()));
 
-				BaseCategory baseCategory = optionalBaseCategory.get();
-
-				EquipmentForm savedEquipmentForm = iEquipmentFormService.saveOrUpdateEquipmentForm(equipmentFormId,
-						name, baseCategory);
-
-				if (savedEquipmentForm != null) {
-
-					for (DiagnosticQuestionDTO questionDTO : questionsDTO) {
-
-						iDiagnosticQuestionService.saveDiagnosticQuestion(questionDTO.getId(), savedEquipmentForm,
-								questionDTO.getDetalle());
-					}
-
-					if (!markedQuestions.isEmpty()) {
-						for (Long questionId : markedQuestions) {
-							iDiagnosticQuestionService.deleteDiagnosticQuestionById(questionId);
-						}
-						markedQuestions.clear();
-					}
-
-					return ResponseEntity.ok("El formulario se ha creado/actualizado exitosamente.");
-				}
-			}
-
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Los datos proporcionados no son válidos");
-
+			markedQuestions.forEach(questionId -> iDiagnosticQuestionService.deleteDiagnosticQuestionById(questionId));
+			
+			Map<String, Object> response = new HashMap<>();
+	        response.put("status", "success");
+	        response.put("message", "El formulario se ha creado/actualizado exitosamente.");
+	        return ResponseEntity.ok(response);
+	        
 		} catch (Exception e) {
-
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("no se pudo crear/actualizar el formulario.");
+			
+			Map<String, Object> response = new HashMap<>();
+	        response.put("status", "error");
+	        response.put("message", "No se pudo crear/actualizar el formulario.");			
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No se pudo crear/actualizar el formulario.");
 		}
-
 	}
 
 	@DeleteMapping("/eliminar")

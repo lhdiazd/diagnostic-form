@@ -14,8 +14,8 @@ import lombok.Setter;
 @Setter
 @Getter
 public class EquipmentFormDTO {
-	private Long id;
-    private BaseCategory baseCategoryDTO;
+	private Long equipmentFormId;
     private String name;
-    private List<DiagnosticQuestion> diagnosticQuestionsDTO;
+    private Long baseCategoryId;
+    private List<DiagnosticQuestionDTO> questionsDTO;
 }
