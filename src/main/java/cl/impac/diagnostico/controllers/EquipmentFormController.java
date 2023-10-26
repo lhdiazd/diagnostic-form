@@ -44,8 +44,7 @@ public class EquipmentFormController {
 	private List<Long> markedQuestions = new ArrayList<>();
 
 	@GetMapping(value = "/listar", produces = MediaType.APPLICATION_JSON_VALUE)
-	public List<EquipmentForm> getAllEquipmentForms() {
-
+	public List<EquipmentFormDTO> getAllEquipmentForms() {
 		return iEquipmentFormService.getAllEquipmentForms();
 
 	}
