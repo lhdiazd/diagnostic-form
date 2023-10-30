@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+import cl.impac.diagnostico.dto.BaseCategoryDTO;
 import cl.impac.diagnostico.dto.DiagnosticQuestionDTO;
 import cl.impac.diagnostico.dto.EquipmentFormDTO;
 import cl.impac.diagnostico.models.entities.BaseCategory;
@@ -29,7 +30,8 @@ public class EquipmentFormServiceImpl implements IEquipmentFormService {
 	        EquipmentFormDTO equipmentFormDTO = new EquipmentFormDTO();
 	        equipmentFormDTO.setEquipmentFormId(equipmentForm.getId());
 	        equipmentFormDTO.setName(equipmentForm.getName());
-	        equipmentFormDTO.setBaseCategoryId(equipmentForm.getBaseCategory().getId());
+	        equipmentFormDTO.setBaseCategoryDTO(equipmentForm.getBaseCategory());
+	        
 
 	       
 	        List<DiagnosticQuestionDTO> questionsDTO = new ArrayList<>();

@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import cl.impac.diagnostico.dto.BaseCategoryDTO;
 import cl.impac.diagnostico.dto.DiagnosticQuestionDTO;
 import cl.impac.diagnostico.dto.EquipmentFormDTO;
 import cl.impac.diagnostico.models.entities.BaseCategory;
@@ -61,10 +62,11 @@ public class EquipmentFormController {
 	@PostMapping(value = "/crear-actualizar", consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> createOrUpdateEquipmentForm(@RequestBody EquipmentFormDTO formData) {
 		try {
-			BaseCategory baseCategory = iBaseCategoryService.getBaseCategoryById(formData.getBaseCategoryId())
+			BaseCategory baseCategory = iBaseCategoryService.getBaseCategoryById(formData.getBaseCategoryDTO().getId())
 					.orElseThrow(
 							() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "La categoría base no existe."));
 
+						
 			EquipmentForm savedEquipmentForm = iEquipmentFormService
 					.saveOrUpdateEquipmentForm(formData.getEquipmentFormId(), formData.getName(), baseCategory);
 
