@@ -1,6 +1,6 @@
 package cl.impac.diagnostico.controllers;
 
-import java.util.ArrayList;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,8 +41,7 @@ public class EquipmentFormController {
 
 	@Autowired
 	private IDiagnosticQuestionService iDiagnosticQuestionService;
-
-	private List<Long> markedQuestions = new ArrayList<>();
+	
 
 	@GetMapping(value = "/listar", produces = MediaType.APPLICATION_JSON_VALUE)
 	public List<EquipmentFormDTO> getAllEquipmentForms() {
@@ -71,9 +70,7 @@ public class EquipmentFormController {
 					.saveOrUpdateEquipmentForm(formData.getEquipmentFormId(), formData.getName(), baseCategory);
 
 			formData.getQuestionsDTO().forEach(questionDTO -> iDiagnosticQuestionService
-					.saveDiagnosticQuestion(questionDTO.getId(), savedEquipmentForm, questionDTO.getDetalle()));
-
-			markedQuestions.forEach(questionId -> iDiagnosticQuestionService.deleteDiagnosticQuestionById(questionId));
+					.saveDiagnosticQuestion(questionDTO.getId(), savedEquipmentForm, questionDTO.getDetalle()));		
 			
 			Map<String, Object> response = new HashMap<>();
 	        response.put("status", "success");
@@ -115,18 +112,6 @@ public class EquipmentFormController {
 				.body("No se encontró el EquipmentForm con el ID especificado o el ID es nulo.");
 	}
 
-	@PostMapping("/marcar-pregunta")
-	public ResponseEntity<?> markQuestionForDeletion(@RequestParam Long diagnosticQuestionId) {
 
-		if (diagnosticQuestionId == null) {
-
-			return ResponseEntity.badRequest().body("El ID de la pregunta es nulo.");
-
-		}
-
-		markedQuestions.add(diagnosticQuestionId);
-
-		return ResponseEntity.ok("Pregunta marcada para eliminación.");
-	}
 
 }
