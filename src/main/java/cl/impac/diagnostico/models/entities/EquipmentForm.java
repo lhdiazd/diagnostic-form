@@ -18,6 +18,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -37,10 +38,10 @@ public class EquipmentForm {
 	private Long id;
 	@NotNull
 	@ManyToMany
-    @JoinTable(name = "equipment_form_category",
-               joinColumns = @JoinColumn(name = "equipment_form_id"),
-               inverseJoinColumns = @JoinColumn(name = "base_category_id"))
-    private List<BaseCategory> baseCategories;
+	@JoinTable(name = "equipment_form_category", joinColumns = @JoinColumn(name = "equipment_form_id"), inverseJoinColumns = @JoinColumn(name = "base_category_id"), uniqueConstraints = @UniqueConstraint(columnNames = {
+			"equipment_form_id", "base_category_id" }))
+	@NotEmpty(message = "El formulario debe estar asociado a al menos una categoría.")
+	private List<BaseCategory> baseCategories;
 	@NotBlank
 	private String name;
 	@JsonManagedReference

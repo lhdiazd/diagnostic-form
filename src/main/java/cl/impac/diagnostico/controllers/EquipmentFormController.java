@@ -2,6 +2,7 @@ package cl.impac.diagnostico.controllers;
 
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -66,14 +67,15 @@ public class EquipmentFormController {
 	@PostMapping(value = "/crear-actualizar", consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> createOrUpdateEquipmentForm(@RequestBody EquipmentFormDTO formData) {
 		 try {
+			 				 	
 		        List<BaseCategory> categoryList = formData.getBaseCategories();
-		        List<BaseCategory> baseCategoryList = new ArrayList<>();
+		        List<BaseCategory> baseCategoryList = new ArrayList<>();      		        
 
-		        for (BaseCategory category : categoryList) {
+		        for (BaseCategory category : categoryList) {		        	
 		            BaseCategory baseCategory = iBaseCategoryService.getBaseCategoryById(category.getId())
 		                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "La categoría base no existe."));
 		            baseCategoryList.add(baseCategory);
-		        }
+		        }       		        
 
 		        EquipmentForm savedEquipmentForm = iEquipmentFormService
 		            .saveOrUpdateEquipmentForm(formData.getEquipmentFormId(), formData.getName(), baseCategoryList);
@@ -89,6 +91,7 @@ public class EquipmentFormController {
 		        Map<String, Object> response = new HashMap<>();
 		        response.put("status", "error");
 		        response.put("message", "No se pudo crear/actualizar el formulario.");
+		        System.out.println(e.getMessage());
 		        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No se pudo crear/actualizar el formulario.");
 		    }
 	}
