@@ -12,20 +12,7 @@ public class FormularioDiagnosticoImpacApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(FormularioDiagnosticoImpacApplication.class, args);
-	}
+	} 
 
-	@Bean
-	public CorsFilter corsFilter() {
-		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-		CorsConfiguration config = new CorsConfiguration();
-		config.addAllowedOrigin("http://localhost:4200"); 
-		config.addAllowedHeader("*");
-		config.addAllowedMethod("GET");
-		config.addAllowedMethod("POST");
-		config.addAllowedMethod("PUT");
-		config.addAllowedMethod("DELETE");
-		source.registerCorsConfiguration("/**", config);
-		return new CorsFilter(source);
-	}
 
 }
