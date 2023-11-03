@@ -30,22 +30,15 @@ public class EquipmentFormServiceImpl implements IEquipmentFormService {
 	        EquipmentFormDTO equipmentFormDTO = new EquipmentFormDTO();
 	        equipmentFormDTO.setEquipmentFormId(equipmentForm.getId());
 	        equipmentFormDTO.setName(equipmentForm.getName());
-	        equipmentFormDTO.setBaseCategoryDTO(equipmentForm.getBaseCategory());
+	        equipmentFormDTO.setBaseCategories(equipmentForm.getBaseCategories());
 	        
-
-	       
-	        List<DiagnosticQuestionDTO> questionsDTO = new ArrayList<>();
+	        List<DiagnosticQuestion> questions = new ArrayList<>();
 	        for (DiagnosticQuestion question : equipmentForm.getDiagnosticQuestion()) {
-	            DiagnosticQuestionDTO questionDTO = new DiagnosticQuestionDTO();
-	            questionDTO.setId(question.getId());
-	            questionDTO.setDetalle(question.getDetalle());
-	            questionsDTO.add(questionDTO);
+	           questions.add(question);
 	        }
-	        equipmentFormDTO.setQuestionsDTO(questionsDTO);
-
+	        equipmentFormDTO.setQuestions(questions);
 	        equipmentFormsDTO.add(equipmentFormDTO);
 	    }
-
 	    return equipmentFormsDTO;
 	}
 
@@ -55,12 +48,12 @@ public class EquipmentFormServiceImpl implements IEquipmentFormService {
 	}
 
 	@Override
-	public EquipmentForm saveOrUpdateEquipmentForm(Long equipmentFormId, String name, BaseCategory baseCategory) {
+	public EquipmentForm saveOrUpdateEquipmentForm(Long equipmentFormId, String name, List<BaseCategory> baseCategories) {
 		EquipmentForm equipmentForm = (equipmentFormId != null)
 				? equipmentFormRepository.findById(equipmentFormId).orElse(new EquipmentForm())
 				: new EquipmentForm();
 		
-		equipmentForm.setBaseCategory(baseCategory);
+		equipmentForm.setBaseCategories(baseCategories);
 		equipmentForm.setName(name);
 
 		try {			

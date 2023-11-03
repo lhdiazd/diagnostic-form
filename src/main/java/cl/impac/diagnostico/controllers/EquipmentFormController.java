@@ -1,10 +1,13 @@
 package cl.impac.diagnostico.controllers;
 
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -62,30 +65,32 @@ public class EquipmentFormController {
 
 	@PostMapping(value = "/crear-actualizar", consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> createOrUpdateEquipmentForm(@RequestBody EquipmentFormDTO formData) {
-		try {
-			BaseCategory baseCategory = iBaseCategoryService.getBaseCategoryById(formData.getBaseCategoryDTO().getId())
-					.orElseThrow(
-							() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "La categoría base no existe."));
+		 try {
+		        List<BaseCategory> categoryList = formData.getBaseCategories();
+		        List<BaseCategory> baseCategoryList = new ArrayList<>();
 
-						
-			EquipmentForm savedEquipmentForm = iEquipmentFormService
-					.saveOrUpdateEquipmentForm(formData.getEquipmentFormId(), formData.getName(), baseCategory);
+		        for (BaseCategory category : categoryList) {
+		            BaseCategory baseCategory = iBaseCategoryService.getBaseCategoryById(category.getId())
+		                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "La categoría base no existe."));
+		            baseCategoryList.add(baseCategory);
+		        }
 
-			formData.getQuestionsDTO().forEach(questionDTO -> iDiagnosticQuestionService
-					.saveDiagnosticQuestion(questionDTO.getId(), savedEquipmentForm, questionDTO.getDetalle()));		
-			
-			Map<String, Object> response = new HashMap<>();
-	        response.put("status", "success");
-	        response.put("message", "El formulario se ha creado/actualizado exitosamente.");
-	        return ResponseEntity.ok(response);
-	        
-		} catch (Exception e) {
-			
-			Map<String, Object> response = new HashMap<>();
-	        response.put("status", "error");
-	        response.put("message", "No se pudo crear/actualizar el formulario.");			
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No se pudo crear/actualizar el formulario.");
-		}
+		        EquipmentForm savedEquipmentForm = iEquipmentFormService
+		            .saveOrUpdateEquipmentForm(formData.getEquipmentFormId(), formData.getName(), baseCategoryList);
+
+		        formData.getQuestions().forEach(questionDTO -> iDiagnosticQuestionService
+		            .saveDiagnosticQuestion(questionDTO.getId(), savedEquipmentForm, questionDTO.getDetalle()));
+
+		        Map<String, Object> response = new HashMap<>();
+		        response.put("status", "success");
+		        response.put("message", "El formulario se ha creado/actualizado exitosamente.");
+		        return ResponseEntity.ok(response);
+		    } catch (Exception e) {
+		        Map<String, Object> response = new HashMap<>();
+		        response.put("status", "error");
+		        response.put("message", "No se pudo crear/actualizar el formulario.");
+		        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No se pudo crear/actualizar el formulario.");
+		    }
 	}
 
 	@DeleteMapping("/eliminar")

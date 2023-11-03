@@ -11,6 +11,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -29,17 +31,19 @@ import lombok.Setter;
 @Entity
 @Table(name = "equipment_form", uniqueConstraints = @UniqueConstraint(columnNames = "name"))
 public class EquipmentForm {
-	
+
 	@Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)	
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	@NotNull	
-	@ManyToOne(optional = false)
-	@JoinColumn(name = "base_category_id", nullable= false)
-	private BaseCategory baseCategory;
+	@NotNull
+	@ManyToMany
+    @JoinTable(name = "equipment_form_category",
+               joinColumns = @JoinColumn(name = "equipment_form_id"),
+               inverseJoinColumns = @JoinColumn(name = "base_category_id"))
+    private List<BaseCategory> baseCategories;
 	@NotBlank
 	private String name;
-	@JsonManagedReference	
+	@JsonManagedReference
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "equipmentForm", cascade = CascadeType.ALL)
 	private List<DiagnosticQuestion> diagnosticQuestion;
 }
