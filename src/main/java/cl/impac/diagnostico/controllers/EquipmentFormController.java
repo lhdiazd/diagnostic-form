@@ -1,6 +1,5 @@
 package cl.impac.diagnostico.controllers;
 
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -33,6 +32,7 @@ import cl.impac.diagnostico.models.entities.EquipmentForm;
 import cl.impac.diagnostico.services.IBaseCategoryService;
 import cl.impac.diagnostico.services.IDiagnosticQuestionService;
 import cl.impac.diagnostico.services.IEquipmentFormService;
+import cl.impac.diagnostico.utils.ResponsesBuilder;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
@@ -47,7 +47,9 @@ public class EquipmentFormController {
 
 	@Autowired
 	private IDiagnosticQuestionService iDiagnosticQuestionService;
-	
+
+	@Autowired
+	private ResponsesBuilder responsesBuilder;
 
 	@GetMapping(value = "/listar", produces = MediaType.APPLICATION_JSON_VALUE)
 	public List<EquipmentFormDTO> getAllEquipmentForms() {
@@ -66,38 +68,46 @@ public class EquipmentFormController {
 
 	@PostMapping(value = "/crear-actualizar", consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> createOrUpdateEquipmentForm(@RequestBody EquipmentFormDTO formData) {
-		 try {
-			 				 	
-		        List<BaseCategory> categoryList = formData.getBaseCategories();
-		        List<BaseCategory> baseCategoryList = new ArrayList<>();      		        
+		try {
+			String name = formData.getName();
+			List<BaseCategory> categoryList = formData.getBaseCategories();
 
-		        for (BaseCategory category : categoryList) {		        	
-		            BaseCategory baseCategory = iBaseCategoryService.getBaseCategoryById(category.getId())
-		                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "La categoría base no existe."));
-		            baseCategoryList.add(baseCategory);
-		        }       		        
+			if (name == null || name.isEmpty()) {
+				Map<String, Object> response = responsesBuilder
+						.createErrorResponse(new Exception("El nombre del formulario no puede ser nulo o vacío."));
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+			}
 
-		        EquipmentForm savedEquipmentForm = iEquipmentFormService
-		            .saveOrUpdateEquipmentForm(formData.getEquipmentFormId(), formData.getName(), baseCategoryList);
+			if (categoryList == null || categoryList.isEmpty()) {
+				Map<String, Object> response = responsesBuilder
+						.createErrorResponse(new Exception("La lista de categorías no puede ser nula o vacía."));
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+			}
 
-		        formData.getQuestions().forEach(questionDTO -> iDiagnosticQuestionService
-		            .saveDiagnosticQuestion(questionDTO.getId(), savedEquipmentForm, questionDTO.getDetalle()));
+			List<BaseCategory> baseCategoryList = categoryList.stream()
+					.map(category -> iBaseCategoryService.getBaseCategoryById(category.getId()).orElseThrow(
+							() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "La categoría base no existe.")))
+					.collect(Collectors.toList());
 
-		        Map<String, Object> response = new HashMap<>();
-		        response.put("status", "success");
-		        response.put("message", "El formulario se ha creado/actualizado exitosamente.");
-		        return ResponseEntity.ok(response);
-		    } catch (Exception e) {
-		        Map<String, Object> response = new HashMap<>();
-		        response.put("status", "error");
-		        response.put("message", "No se pudo crear/actualizar el formulario.");
-		        System.out.println(e.getMessage());
-		        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No se pudo crear/actualizar el formulario.");
-		    }
+			EquipmentForm savedEquipmentForm = iEquipmentFormService
+					.saveOrUpdateEquipmentForm(formData.getEquipmentFormId(), name, baseCategoryList);
+
+			formData.getQuestions().forEach(questionDTO -> iDiagnosticQuestionService
+					.saveDiagnosticQuestion(questionDTO.getId(), savedEquipmentForm, questionDTO.getDetalle()));
+
+			Map<String, Object> response = responsesBuilder
+					.createSuccessResponse("El formulario se ha creado/actualizado exitosamente.");
+
+			return ResponseEntity.ok(response);
+		} catch (Exception e) {
+			Map<String, Object> response = responsesBuilder.createErrorResponse(e);
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+		}
+
 	}
 
 	@DeleteMapping("/eliminar")
-	public ResponseEntity<String> deleteEquipmentForm(@RequestParam Long equipmentFormId) {
+	public ResponseEntity<?> deleteEquipmentForm(@RequestParam Long equipmentFormId) {
 
 		if (equipmentFormId != null) {
 
@@ -108,12 +118,15 @@ public class EquipmentFormController {
 				try {
 
 					iEquipmentFormService.deleteEquipmentFormById(equipmentFormId);
-					return ResponseEntity.ok("El EquipmentForm se eliminó con éxito.");
+					Map<String, Object> response = responsesBuilder
+							.createSuccessResponse("El formulario se ha eliminado exitosamente.");
+
+					return ResponseEntity.ok(response);
 
 				} catch (DataIntegrityViolationException e) {
+					Map<String, Object> response = responsesBuilder.createErrorResponse(e);
+					return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
 
-					return ResponseEntity.badRequest()
-							.body("Error en la eliminación debido a restricciones de integridad.");
 				}
 			}
 		}
@@ -121,7 +134,5 @@ public class EquipmentFormController {
 		return ResponseEntity.badRequest()
 				.body("No se encontró el EquipmentForm con el ID especificado o el ID es nulo.");
 	}
-
-
 
 }

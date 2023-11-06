@@ -35,6 +35,7 @@ public class EquipmentFormServiceImpl implements IEquipmentFormService {
 	        List<DiagnosticQuestion> questions = new ArrayList<>();
 	        for (DiagnosticQuestion question : equipmentForm.getDiagnosticQuestion()) {
 	           questions.add(question);
+	           System.out.println(question.getDetalle());
 	        }
 	        equipmentFormDTO.setQuestions(questions);
 	        equipmentFormsDTO.add(equipmentFormDTO);
