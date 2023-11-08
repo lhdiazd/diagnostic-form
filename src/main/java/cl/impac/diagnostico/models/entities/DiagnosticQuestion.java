@@ -32,5 +32,7 @@ public class DiagnosticQuestion {
 	@NotBlank
 	@Column(nullable = false)
 	private String detalle;
+	private int orderIndex;
+	
 }
  

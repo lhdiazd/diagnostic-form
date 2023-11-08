@@ -26,13 +26,14 @@ public class DiagnosticQuestionServiceImpl implements IDiagnosticQuestionService
 	}
 
 	@Override
-	public DiagnosticQuestion saveDiagnosticQuestion(Long diagnosticQuestionId, EquipmentForm equipmentForm, String detalle) {
+	public DiagnosticQuestion saveDiagnosticQuestion(Long diagnosticQuestionId, EquipmentForm equipmentForm, String detalle, int orderIndex) {
 		DiagnosticQuestion diagnosticQuestion = (diagnosticQuestionId != null)
 				? diagnosticQuestionRepository.findById(diagnosticQuestionId).orElse(new DiagnosticQuestion())
 				: new DiagnosticQuestion();
 
 		diagnosticQuestion.setEquipmentForm(equipmentForm);
 		diagnosticQuestion.setDetalle(detalle);
+		diagnosticQuestion.setOrderIndex(orderIndex);
 
 		try {
 			

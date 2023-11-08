@@ -92,8 +92,8 @@ public class EquipmentFormController {
 			EquipmentForm savedEquipmentForm = iEquipmentFormService
 					.saveOrUpdateEquipmentForm(formData.getEquipmentFormId(), name, baseCategoryList);
 
-			formData.getQuestions().forEach(questionDTO -> iDiagnosticQuestionService
-					.saveDiagnosticQuestion(questionDTO.getId(), savedEquipmentForm, questionDTO.getDetalle()));
+			formData.getQuestions().forEach(question -> iDiagnosticQuestionService
+					.saveDiagnosticQuestion(question.getId(), savedEquipmentForm, question.getDetalle(), question.getOrderIndex()));
 
 			Map<String, Object> response = responsesBuilder
 					.createSuccessResponse("El formulario se ha creado/actualizado exitosamente.");
