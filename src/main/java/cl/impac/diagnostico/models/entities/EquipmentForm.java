@@ -2,8 +2,9 @@ package cl.impac.diagnostico.models.entities;
 
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -18,7 +19,6 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -35,11 +35,12 @@ public class EquipmentForm {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	@NotNull
-	@ManyToMany
+	@NotEmpty(message = "El formulario debe estar asociado a al menos una categoría.")
+	@ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
 	@JoinTable(name = "equipment_form_category", joinColumns = @JoinColumn(name = "equipment_form_id"), inverseJoinColumns = @JoinColumn(name = "base_category_id"), uniqueConstraints = @UniqueConstraint(columnNames = {
 			"equipment_form_id", "base_category_id" }))
 	@NotEmpty(message = "El formulario debe estar asociado a al menos una categoría.")
+	@JsonIgnore
 	private List<BaseCategory> baseCategories;
 	@NotBlank
 	private String name;

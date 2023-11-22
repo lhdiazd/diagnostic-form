@@ -3,6 +3,8 @@ package cl.impac.diagnostico.services;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import org.aspectj.weaver.patterns.TypePatternQuestions.Question;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -14,8 +16,10 @@ import cl.impac.diagnostico.models.entities.BaseCategory;
 import cl.impac.diagnostico.models.entities.DiagnosticQuestion;
 import cl.impac.diagnostico.models.entities.EquipmentForm;
 import cl.impac.diagnostico.models.repositories.EquipmentFormRepository;
+import jakarta.transaction.Transactional;
 
 @Service
+@Transactional
 public class EquipmentFormServiceImpl implements IEquipmentFormService {
 
 	@Autowired
@@ -31,6 +35,16 @@ public class EquipmentFormServiceImpl implements IEquipmentFormService {
 	        equipmentFormDTO.setEquipmentFormId(equipmentForm.getId());
 	        equipmentFormDTO.setName(equipmentForm.getName());
 	        equipmentFormDTO.setBaseCategories(equipmentForm.getBaseCategories());
+	        
+	        for (BaseCategory categoria : equipmentForm.getBaseCategories()) {
+	            System.out.println("Categoria: " + categoria.getName());
+	            categoria.getEquipmentForms().forEach(form -> {
+	                System.out.println("  Formulario - ID: " + form.getId() + ", Nombre: " + form.getName());
+	                form.getDiagnosticQuestion().forEach(question -> {
+	                    System.out.println("    Pregunta: " + question.getDetalle());
+	                });
+	            });
+	        }
 	        
 	        List<DiagnosticQuestion> questions = new ArrayList<>();
 	        for (DiagnosticQuestion question : equipmentForm.getDiagnosticQuestion()) {

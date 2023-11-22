@@ -20,7 +20,6 @@ public class BaseCatagoryController {
 
 	@GetMapping(value = "/listar", produces = MediaType.APPLICATION_JSON_VALUE)
 	public List<BaseCategory> getAllEquipmentForms() {
-
 		return ibaseCategoryService.getAllBaseCategories();
 
 	}
