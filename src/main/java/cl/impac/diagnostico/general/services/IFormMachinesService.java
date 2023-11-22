@@ -12,6 +12,6 @@ import cl.impac.diagnostico.models.general.entities.FormMachines;
 public interface IFormMachinesService {
 	public List<FormMachinesDTO> getAllForms();
 	public Optional<FormMachines> getFormById(Long id);
-	public FormMachines saveOrUpdateForm(Long FormMachineId, String name, String description);
-	public boolean deleteEquipmentFormById(Long id);
+	public FormMachines saveOrUpdateForm(Long formMachineId, String name, String description);
+	public boolean deleteFormById(Long id);
 }
