@@ -8,4 +8,5 @@ import lombok.Setter;
 public class DiagnosticQuestionDTO {
 	private Long id;	
 	private String detalle;
+	private int orderIndex;
 }

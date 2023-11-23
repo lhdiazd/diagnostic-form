@@ -13,9 +13,13 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+@AllArgsConstructor
+@NoArgsConstructor
 @Setter
 @Getter
 @Entity
@@ -32,5 +36,7 @@ public class DiagnosticQuestion {
 	@NotBlank
 	@Column(nullable = false)
 	private String detalle;
+	private int orderIndex;
+	
 }
  

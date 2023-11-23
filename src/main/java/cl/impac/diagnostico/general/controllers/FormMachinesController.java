@@ -1,8 +1,5 @@
-package cl.impac.diagnostico.controllers;
+package cl.impac.diagnostico.general.controllers;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -24,11 +21,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import cl.impac.diagnostico.dto.BaseCategoryDTO;
-import cl.impac.diagnostico.dto.DiagnosticQuestionDTO;
 import cl.impac.diagnostico.dto.EquipmentFormDTO;
+import cl.impac.diagnostico.general.dto.FormMachinesDTO;
+import cl.impac.diagnostico.general.services.ICatMachineService;
+import cl.impac.diagnostico.general.services.IFormMachinesService;
 import cl.impac.diagnostico.models.entities.BaseCategory;
 import cl.impac.diagnostico.models.entities.EquipmentForm;
+import cl.impac.diagnostico.models.general.entities.FormMachines;
 import cl.impac.diagnostico.services.IBaseCategoryService;
 import cl.impac.diagnostico.services.IDiagnosticQuestionService;
 import cl.impac.diagnostico.services.IEquipmentFormService;
@@ -37,37 +36,34 @@ import cl.impac.diagnostico.utils.ResponsesBuilder;
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
 @RequestMapping("/formularios")
-public class EquipmentFormController {
+public class FormMachinesController {
+	@Autowired
+	private IFormMachinesService iFormMachinesService;
 
 	@Autowired
-	private IEquipmentFormService iEquipmentFormService;
+	private ICatMachineService iCatMachineService;
 
-	@Autowired
-	private IBaseCategoryService iBaseCategoryService;
-
-	@Autowired
-	private IDiagnosticQuestionService iDiagnosticQuestionService;
-
+	
 	@Autowired
 	private ResponsesBuilder responsesBuilder;
 
 	@GetMapping(value = "/listar", produces = MediaType.APPLICATION_JSON_VALUE)
-	public List<EquipmentFormDTO> getAllEquipmentForms() {
-		return iEquipmentFormService.getAllEquipmentForms();
+	public List<FormMachinesDTO> getAllForms() {
+		return iFormMachinesService.getAllForms();
 
 	}
 
 	@GetMapping(value = "/ver/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> getEquipmentFormById(@PathVariable Long id) {
+	public ResponseEntity<?> getFormById(@PathVariable Long id) {
 
-		Optional<EquipmentForm> optionalEquipmentForm = iEquipmentFormService.getEquipmentFormById(id);
+		Optional<FormMachines> optionFormMachine = iFormMachinesService.getFormById(id);
 
-		return optionalEquipmentForm.isPresent() ? ResponseEntity.ok(optionalEquipmentForm.get())
+		return optionFormMachine.isPresent() ? ResponseEntity.ok(optionFormMachine.get())
 				: ResponseEntity.status(HttpStatus.NOT_FOUND).body("Formulario no encontrado");
 	}
 
 	@PostMapping(value = "/crear-actualizar", consumes = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> createOrUpdateEquipmentForm(@RequestBody EquipmentFormDTO formData) {
+	public ResponseEntity<?> createOrUpdateForm(@RequestBody EquipmentFormDTO formData) {
 		try {
 			String name = formData.getName();
 			List<BaseCategory> categoryList = formData.getBaseCategories();

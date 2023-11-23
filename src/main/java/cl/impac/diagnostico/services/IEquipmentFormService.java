@@ -11,6 +11,6 @@ import cl.impac.diagnostico.models.entities.EquipmentForm;
 public interface IEquipmentFormService {
 	public List<EquipmentFormDTO> getAllEquipmentForms();
 	public Optional<EquipmentForm> getEquipmentFormById(Long id);
-	public EquipmentForm saveOrUpdateEquipmentForm(Long equipmentFormId, String name, BaseCategory baseCategory);
+	public EquipmentForm saveOrUpdateEquipmentForm(Long equipmentFormId, String name, List<BaseCategory> baseCategories);
 	public boolean deleteEquipmentFormById(Long id);
 }

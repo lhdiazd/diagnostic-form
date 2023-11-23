@@ -3,6 +3,8 @@ package cl.impac.diagnostico.services;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import org.aspectj.weaver.patterns.TypePatternQuestions.Question;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -14,8 +16,10 @@ import cl.impac.diagnostico.models.entities.BaseCategory;
 import cl.impac.diagnostico.models.entities.DiagnosticQuestion;
 import cl.impac.diagnostico.models.entities.EquipmentForm;
 import cl.impac.diagnostico.models.repositories.EquipmentFormRepository;
+import jakarta.transaction.Transactional;
 
 @Service
+@Transactional
 public class EquipmentFormServiceImpl implements IEquipmentFormService {
 
 	@Autowired
@@ -30,22 +34,25 @@ public class EquipmentFormServiceImpl implements IEquipmentFormService {
 	        EquipmentFormDTO equipmentFormDTO = new EquipmentFormDTO();
 	        equipmentFormDTO.setEquipmentFormId(equipmentForm.getId());
 	        equipmentFormDTO.setName(equipmentForm.getName());
-	        equipmentFormDTO.setBaseCategoryDTO(equipmentForm.getBaseCategory());
+	        equipmentFormDTO.setBaseCategories(equipmentForm.getBaseCategories());
 	        
-
-	       
-	        List<DiagnosticQuestionDTO> questionsDTO = new ArrayList<>();
-	        for (DiagnosticQuestion question : equipmentForm.getDiagnosticQuestion()) {
-	            DiagnosticQuestionDTO questionDTO = new DiagnosticQuestionDTO();
-	            questionDTO.setId(question.getId());
-	            questionDTO.setDetalle(question.getDetalle());
-	            questionsDTO.add(questionDTO);
+	        for (BaseCategory categoria : equipmentForm.getBaseCategories()) {
+	            System.out.println("Categoria: " + categoria.getName());
+	            categoria.getEquipmentForms().forEach(form -> {
+	                System.out.println("  Formulario - ID: " + form.getId() + ", Nombre: " + form.getName());
+	                form.getDiagnosticQuestion().forEach(question -> {
+	                    System.out.println("    Pregunta: " + question.getDetalle());
+	                });
+	            });
 	        }
-	        equipmentFormDTO.setQuestionsDTO(questionsDTO);
-
+	        
+	        List<DiagnosticQuestion> questions = new ArrayList<>();
+	        for (DiagnosticQuestion question : equipmentForm.getDiagnosticQuestion()) {
+	           questions.add(question);	           
+	        }
+	        equipmentFormDTO.setQuestions(questions);
 	        equipmentFormsDTO.add(equipmentFormDTO);
 	    }
-
 	    return equipmentFormsDTO;
 	}
 
@@ -55,12 +62,12 @@ public class EquipmentFormServiceImpl implements IEquipmentFormService {
 	}
 
 	@Override
-	public EquipmentForm saveOrUpdateEquipmentForm(Long equipmentFormId, String name, BaseCategory baseCategory) {
+	public EquipmentForm saveOrUpdateEquipmentForm(Long equipmentFormId, String name, List<BaseCategory> baseCategories) {
 		EquipmentForm equipmentForm = (equipmentFormId != null)
 				? equipmentFormRepository.findById(equipmentFormId).orElse(new EquipmentForm())
 				: new EquipmentForm();
 		
-		equipmentForm.setBaseCategory(baseCategory);
+		equipmentForm.setBaseCategories(baseCategories);
 		equipmentForm.setName(name);
 
 		try {			

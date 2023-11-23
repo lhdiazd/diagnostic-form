@@ -16,6 +16,6 @@ import lombok.Setter;
 public class EquipmentFormDTO {
 	private Long equipmentFormId;
     private String name;
-    private BaseCategory baseCategoryDTO;
-    private List<DiagnosticQuestionDTO> questionsDTO;
+    private List<BaseCategory> baseCategories;
+    private List<DiagnosticQuestion> questions;
 }
