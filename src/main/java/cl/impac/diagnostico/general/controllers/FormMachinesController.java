@@ -63,30 +63,20 @@ public class FormMachinesController {
 	}
 
 	@PostMapping(value = "/crear-actualizar", consumes = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> createOrUpdateForm(@RequestBody EquipmentFormDTO formData) {
+	public ResponseEntity<?> createOrUpdateForm(@RequestBody FormMachinesDTO formData) {
 		try {
 			String name = formData.getName();
-			List<BaseCategory> categoryList = formData.getBaseCategories();
-
+			String description = formData.getDescription();
+			
 			if (name == null || name.isEmpty()) {
 				Map<String, Object> response = responsesBuilder
 						.createErrorResponse(new Exception("El nombre del formulario no puede ser nulo o vacío."));
 				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-			}
+			}			
 
-			if (categoryList == null || categoryList.isEmpty()) {
-				Map<String, Object> response = responsesBuilder
-						.createErrorResponse(new Exception("La lista de categorías no puede ser nula o vacía."));
-				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-			}
-
-			List<BaseCategory> baseCategoryList = categoryList.stream()
-					.map(category -> iBaseCategoryService.getBaseCategoryById(category.getId()).orElseThrow(
-							() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "La categoría base no existe.")))
-					.collect(Collectors.toList());
-
-			EquipmentForm savedEquipmentForm = iEquipmentFormService
-					.saveOrUpdateEquipmentForm(formData.getEquipmentFormId(), name, baseCategoryList);
+			
+			FormMachines savedForm = iFormMachinesService
+					.saveOrUpdateForm(formData.getId(), name, description);
 
 			formData.getQuestions().forEach(question -> iDiagnosticQuestionService
 					.saveDiagnosticQuestion(question.getId(), savedEquipmentForm, question.getDetalle(), question.getOrderIndex()));
