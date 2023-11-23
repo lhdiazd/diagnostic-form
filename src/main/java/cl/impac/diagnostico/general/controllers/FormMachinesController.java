@@ -25,6 +25,7 @@ import cl.impac.diagnostico.dto.EquipmentFormDTO;
 import cl.impac.diagnostico.general.dto.FormMachinesDTO;
 import cl.impac.diagnostico.general.services.ICatMachineService;
 import cl.impac.diagnostico.general.services.IFormMachinesService;
+import cl.impac.diagnostico.general.services.IQuestionService;
 import cl.impac.diagnostico.models.entities.BaseCategory;
 import cl.impac.diagnostico.models.entities.EquipmentForm;
 import cl.impac.diagnostico.models.general.entities.FormMachines;
@@ -42,18 +43,22 @@ public class FormMachinesController {
 
 	@Autowired
 	private ICatMachineService iCatMachineService;
+	
+	
+	@Autowired
+	private IQuestionService iQuestionService;
 
 	
 	@Autowired
 	private ResponsesBuilder responsesBuilder;
 
-	@GetMapping(value = "/listar", produces = MediaType.APPLICATION_JSON_VALUE)
+	@GetMapping(value = "/listar-formularios", produces = MediaType.APPLICATION_JSON_VALUE)
 	public List<FormMachinesDTO> getAllForms() {
 		return iFormMachinesService.getAllForms();
 
 	}
 
-	@GetMapping(value = "/ver/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+	@GetMapping(value = "/ver-formulario/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> getFormById(@PathVariable Long id) {
 
 		Optional<FormMachines> optionFormMachine = iFormMachinesService.getFormById(id);
@@ -62,34 +67,22 @@ public class FormMachinesController {
 				: ResponseEntity.status(HttpStatus.NOT_FOUND).body("Formulario no encontrado");
 	}
 
-	@PostMapping(value = "/crear-actualizar", consumes = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> createOrUpdateForm(@RequestBody EquipmentFormDTO formData) {
+	@PostMapping(value = "/crear-actualizar-formulario", consumes = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> createOrUpdateForm(@RequestBody FormMachinesDTO formData) {
 		try {
 			String name = formData.getName();
-			List<BaseCategory> categoryList = formData.getBaseCategories();
-
+			String description = formData.getDescription();
 			if (name == null || name.isEmpty()) {
 				Map<String, Object> response = responsesBuilder
 						.createErrorResponse(new Exception("El nombre del formulario no puede ser nulo o vacío."));
 				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
 			}
 
-			if (categoryList == null || categoryList.isEmpty()) {
-				Map<String, Object> response = responsesBuilder
-						.createErrorResponse(new Exception("La lista de categorías no puede ser nula o vacía."));
-				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-			}
+			FormMachines savedForm = iFormMachinesService
+					.saveOrUpdateForm(formData.getId(), name, description);
 
-			List<BaseCategory> baseCategoryList = categoryList.stream()
-					.map(category -> iBaseCategoryService.getBaseCategoryById(category.getId()).orElseThrow(
-							() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "La categoría base no existe.")))
-					.collect(Collectors.toList());
-
-			EquipmentForm savedEquipmentForm = iEquipmentFormService
-					.saveOrUpdateEquipmentForm(formData.getEquipmentFormId(), name, baseCategoryList);
-
-			formData.getQuestions().forEach(question -> iDiagnosticQuestionService
-					.saveDiagnosticQuestion(question.getId(), savedEquipmentForm, question.getDetalle(), question.getOrderIndex()));
+			formData.getQuestions().forEach(question -> iQuestionService
+					.saveQuestion(question.getId(), question.getQuestion(), question.getOrden()));
 
 			Map<String, Object> response = responsesBuilder
 					.createSuccessResponse("El formulario se ha creado/actualizado exitosamente.");
@@ -102,18 +95,18 @@ public class FormMachinesController {
 
 	}
 
-	@DeleteMapping("/eliminar")
-	public ResponseEntity<?> deleteEquipmentForm(@RequestParam Long equipmentFormId) {
+	@DeleteMapping("/eliminar-formulario")
+	public ResponseEntity<?> deleteEquipmentForm(@RequestParam Long id) {
 
-		if (equipmentFormId != null) {
+		if (id != null) {
 
-			Optional<EquipmentForm> optionalEquipmentForm = iEquipmentFormService.getEquipmentFormById(equipmentFormId);
+			Optional<FormMachines> optionalFormMachines = iFormMachinesService.getFormById(id);
 
-			if (optionalEquipmentForm.isPresent()) {
+			if (optionalFormMachines.isPresent()) {
 
 				try {
 
-					iEquipmentFormService.deleteEquipmentFormById(equipmentFormId);
+					iFormMachinesService.deleteFormById(id);
 					Map<String, Object> response = responsesBuilder
 							.createSuccessResponse("El formulario se ha eliminado exitosamente.");
 
