@@ -14,6 +14,7 @@ import cl.impac.diagnostico.general.dto.FormMachinesDTO;
 import cl.impac.diagnostico.models.entities.BaseCategory;
 import cl.impac.diagnostico.models.entities.DiagnosticQuestion;
 import cl.impac.diagnostico.models.entities.EquipmentForm;
+import cl.impac.diagnostico.models.general.entities.CatMachine;
 import cl.impac.diagnostico.models.general.entities.FormMachines;
 import cl.impac.diagnostico.models.general.entities.Question;
 import cl.impac.diagnostico.models.general.repositories.FormMachinesRepository;
@@ -35,7 +36,13 @@ public class FormMachinesServiceImpl implements IFormMachinesService {
 	    for (FormMachines formMachine : formMachines) {
 	    	FormMachinesDTO formMachinesDTO = new FormMachinesDTO();
 	    	formMachinesDTO.setId(formMachine.getId());
-	    	formMachinesDTO.setName(formMachine.getName());      
+	    	formMachinesDTO.setName(formMachine.getName());
+	    	
+	    	for(CatMachine catMachine: formMachine.getCategories()) {
+	    		System.out.println(catMachine.getName());
+	    	}
+	    	
+	    	formMachinesDTO.setCategories(formMachine.getCategories());
 	     
 	        
 	        List<Question> questions = new ArrayList<>();
@@ -54,11 +61,12 @@ public class FormMachinesServiceImpl implements IFormMachinesService {
 	}
 
 	@Override
-	public FormMachines saveOrUpdateForm(Long formMachineId, String name, String description) {
+	public FormMachines saveOrUpdateForm(Long formMachineId, String name, String description, List<CatMachine> categorList) {
 		FormMachines formMachines = (formMachineId != null)
 				? formMachinesRepository.findById(formMachineId).orElse(new FormMachines())
 				: new FormMachines();		
 		formMachines.setName(name);
+		formMachines.setCategories(categorList);
 		try {			
 			return formMachinesRepository.save(formMachines);
 			

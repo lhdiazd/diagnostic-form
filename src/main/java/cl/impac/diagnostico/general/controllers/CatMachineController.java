@@ -23,6 +23,13 @@ public class CatMachineController {
 
 	@GetMapping(value = "/listar-categorias", produces = MediaType.APPLICATION_JSON_VALUE)
 	public List<CatMachine> getAllCategories() {
+		List<CatMachine> catMachines = iCatMachineService.getAllCategories();
+		
+		for(CatMachine catMachine: catMachines) {
+			catMachine.getFormMachines().forEach(form -> System.out.println(form.getName() + " " + form.getId()));
+		}
+		
+		
 		return iCatMachineService.getAllCategories();
 
 	}

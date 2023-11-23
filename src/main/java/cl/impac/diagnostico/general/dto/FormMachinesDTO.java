@@ -4,6 +4,7 @@ import java.util.List;
 
 import cl.impac.diagnostico.models.entities.BaseCategory;
 import cl.impac.diagnostico.models.entities.DiagnosticQuestion;
+import cl.impac.diagnostico.models.general.entities.CatMachine;
 import cl.impac.diagnostico.models.general.entities.Question;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -28,4 +29,5 @@ public class FormMachinesDTO {
 	private String name;
 	private String description;	
 	private List<Question> questions;
+	private List<CatMachine> categories;
 }

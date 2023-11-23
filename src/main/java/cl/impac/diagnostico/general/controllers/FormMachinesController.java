@@ -28,6 +28,7 @@ import cl.impac.diagnostico.general.services.IFormMachinesService;
 import cl.impac.diagnostico.general.services.IQuestionService;
 import cl.impac.diagnostico.models.entities.BaseCategory;
 import cl.impac.diagnostico.models.entities.EquipmentForm;
+import cl.impac.diagnostico.models.general.entities.CatMachine;
 import cl.impac.diagnostico.models.general.entities.FormMachines;
 import cl.impac.diagnostico.services.IBaseCategoryService;
 import cl.impac.diagnostico.services.IDiagnosticQuestionService;
@@ -43,19 +44,16 @@ public class FormMachinesController {
 
 	@Autowired
 	private ICatMachineService iCatMachineService;
-	
-	
+
 	@Autowired
 	private IQuestionService iQuestionService;
 
-	
 	@Autowired
 	private ResponsesBuilder responsesBuilder;
 
 	@GetMapping(value = "/listar-formularios", produces = MediaType.APPLICATION_JSON_VALUE)
 	public List<FormMachinesDTO> getAllForms() {
-		return iFormMachinesService.getAllForms();
-
+			return iFormMachinesService.getAllForms();
 	}
 
 	@GetMapping(value = "/ver-formulario/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -67,39 +65,38 @@ public class FormMachinesController {
 				: ResponseEntity.status(HttpStatus.NOT_FOUND).body("Formulario no encontrado");
 	}
 
-<<<<<<< HEAD
-	@PostMapping(value = "/crear-actualizar", consumes = MediaType.APPLICATION_JSON_VALUE)
-=======
 	@PostMapping(value = "/crear-actualizar-formulario", consumes = MediaType.APPLICATION_JSON_VALUE)
->>>>>>> e88faa1611795d46d96cac99d829c59fe96ddfd2
 	public ResponseEntity<?> createOrUpdateForm(@RequestBody FormMachinesDTO formData) {
 		try {
 			String name = formData.getName();
 			String description = formData.getDescription();
-<<<<<<< HEAD
+			List<CatMachine> categoryList = formData.getCategories();
 			
-=======
->>>>>>> e88faa1611795d46d96cac99d829c59fe96ddfd2
+
 			if (name == null || name.isEmpty()) {
 				Map<String, Object> response = responsesBuilder
 						.createErrorResponse(new Exception("El nombre del formulario no puede ser nulo o vacío."));
 				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-			}			
+			}
 
-<<<<<<< HEAD
+			if (categoryList == null || categoryList.isEmpty()) {
+				Map<String, Object> response = responsesBuilder
+						.createErrorResponse(new Exception("La lista de categorías no puede ser nula o vacía."));
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+			}
 			
-			FormMachines savedForm = iFormMachinesService
-					.saveOrUpdateForm(formData.getId(), name, description);
-
-			formData.getQuestions().forEach(question -> iDiagnosticQuestionService
-					.saveDiagnosticQuestion(question.getId(), savedEquipmentForm, question.getDetalle(), question.getOrderIndex()));
-=======
-			FormMachines savedForm = iFormMachinesService
-					.saveOrUpdateForm(formData.getId(), name, description);
-
-			formData.getQuestions().forEach(question -> iQuestionService
-					.saveQuestion(question.getId(), question.getQuestion(), question.getOrden()));
->>>>>>> e88faa1611795d46d96cac99d829c59fe96ddfd2
+			List<CatMachine> baseCategoryList = categoryList.stream()
+					.map(category -> iCatMachineService.getCategoryById(category.getId()).orElseThrow(
+							() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "La categoría base no existe.")))
+					.collect(Collectors.toList());			
+			
+			
+			FormMachines savedForm = iFormMachinesService.saveOrUpdateForm(formData.getId(), name, description, baseCategoryList);	
+			
+			savedForm.setQuestions(formData.getQuestions());
+			
+//			formData.getQuestions().forEach(question -> iQuestionService.saveQuestion(question.getId(),
+//					question.getQuestion(), question.getOrden()));
 
 			Map<String, Object> response = responsesBuilder
 					.createSuccessResponse("El formulario se ha creado/actualizado exitosamente.");

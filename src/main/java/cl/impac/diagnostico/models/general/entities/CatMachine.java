@@ -6,6 +6,10 @@ import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -30,7 +34,8 @@ public class CatMachine  {
 	private Instant lastUpdatedOn;
 	@CreationTimestamp
 	private Instant createdOn;
-   @ManyToMany
-   private List<FormMachines> formMachines;
+	@ManyToMany(mappedBy = "categories")
+	@JsonIgnore
+	private List<FormMachines> formMachines;
 
 }
